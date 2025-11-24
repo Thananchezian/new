@@ -1,4 +1,6 @@
-# src/main.py
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
 
 def add(a, b):
     return a + b
@@ -14,24 +16,28 @@ def divide(a, b):
         return "Error: Cannot divide by zero!"
     return a / b
 
-def calculator():
-    print("Simple Python Calculator")
-    print("Operations: +  -  *  /")
-    a = float(input("Enter first number: "))
-    b = float(input("Enter second number: "))
-    op = input("Enter operation (+, -, *, /): ")
+@app.route("/")
+def home():
+    return "Calculator API is running!"
+
+@app.route("/calc")
+def calc():
+    a = float(request.args.get("a", 0))
+    b = float(request.args.get("b", 1))
+    op = request.args.get("op", "+")
 
     if op == "+":
-        print(add(a, b))
+        result = add(a, b)
     elif op == "-":
-        print(subtract(a, b))
+        result = subtract(a, b)
     elif op == "*":
-        print(multiply(a, b))
+        result = multiply(a, b)
     elif op == "/":
-        print(divide(a, b))
+        result = divide(a, b)
     else:
-        print("Invalid operation!")
+        return jsonify({"error": "Invalid operation"}), 400
 
-# Only run interactive code when executed directly
+    return jsonify({"result": result})
+
 if __name__ == "__main__":
-    calculator()
+    app.run(host="0.0.0.0", port=8000)
