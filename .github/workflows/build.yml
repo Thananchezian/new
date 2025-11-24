@@ -29,10 +29,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4️⃣ Run unit tests
-      - name: Run Unit Tests
-        run: |
-          pytest -v
+# 4️⃣ Run unit tests
+- name: Run Unit Tests
+  run: |
+    export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+    pytest -v
+
 
       # 5️⃣ Run SonarQube scan
       - name: SonarQube Scan
