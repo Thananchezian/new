@@ -11,5 +11,4 @@ COPY src/ ./src
 
 EXPOSE 8000
 
-# Run the Flask API
 CMD ["python", "src/main.py"]
