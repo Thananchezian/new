@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import vulnerable_app
 
 def test_calc_user_expression():
