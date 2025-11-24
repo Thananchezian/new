@@ -1,24 +1,20 @@
 name: Build
-
 on:
   push:
     branches:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-
 jobs:
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repo
-      - uses: actions/checkout@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed for accurate analysis
-
-      # Run SonarCloud scan
+          fetch-depth: 0  # Disable shallow clone for better SonarQube analysis
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          
