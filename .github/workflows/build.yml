@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -24,19 +23,17 @@ jobs:
         run: |
           docker run -d -p 8000:8000 --name python-app python-app:latest
 
-      # Wait for app to become ready
+      # Wait for server to start
       - name: Wait for server
-        run: |
-          echo "Waiting for application startup..."
-          sleep 10
+        run: sleep 15
 
-      # OWASP ZAP Baseline Scan (DAST)
+      # OWASP ZAP Baseline Scan
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.11.0
         with:
           target: "http://localhost:8000"
-          format: html
           cmd_options: "-a"
+          artifact_name: "zap-report"
 
       # Upload ZAP HTML Report
       - name: Upload ZAP Report
