@@ -1,4 +1,4 @@
-name: Build and Scan
+name: Build
 
 on:
   push:
@@ -8,38 +8,43 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build-and-sonar:
-    name: Python Unit Tests + SonarCloud
+  sonarqube:
+    name: Unit Tests + SonarQube
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # Step 1: Checkout repository
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # Required for SonarQube scan
 
-      # Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # Step 2: Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # Install dependencies (including pytest-cov)
-      - name: Install dependencies
+      # Step 3: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install coverage
 
-      # Run unit tests with coverage
-      - name: Run unit tests
+      # Step 4: Run Unit Tests with Coverage
+      - name: Run Unit Tests with Coverage
         run: |
-          pytest --cov=./ --cov-report=xml
+          coverage run -m unittest discover -s src -p "test*.py"
+          coverage xml
 
-      # SonarCloud Scan (reads coverage.xml by default if configured in sonar-project.properties)
-      - name: SonarCloud Scan
+      # Step 5: SonarQube Scan
+      - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
+        with:
+          args: >
+            -Dsonar.projectKey=Thananchezian_new
+            -Dsonar.organization=thananchezian
+            -Dsonar.sources=src
+            -Dsonar.python.coverage.reportPaths=coverage.xml
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
