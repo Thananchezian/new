@@ -1,27 +1,41 @@
 name: Build
+
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 jobs:
-  sonarqube:
-    name: SonarQube Cloud
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install tox and any other packages
-        run: pip install tox
-      - name: Run tox
-        run: tox -e py
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  sonarqube:
+    name: SonarQube Cloud
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.10]
+    steps:
+      # 1️⃣ Checkout code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # 2️⃣ Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      # 3️⃣ Install tox and dependencies
+      - name: Install tox
+        run: pip install tox
+
+      # 4️⃣ Run tox tests
+      - name: Run tox
+        run: tox -e py
+
+      # 5️⃣ SonarCloud scan
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
