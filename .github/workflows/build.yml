@@ -27,8 +27,10 @@ jobs:
           pip install pytest
 
       - name: Run tests
-        run: |
-          pytest --disable-warnings --maxfail=1
+      env:
+        PYTHONPATH: ./src
+      run: |
+        pytest --disable-warnings --maxfail=1
 
   docker-and-zap:
     runs-on: ubuntu-latest
