@@ -1,76 +1,92 @@
-# -------------------------------------------------------------
-# WARNING: This file is intentionally vulnerable.
-# It exists ONLY for testing SonarQube / SAST tools.
-# DO NOT use in any real application.
-# -------------------------------------------------------------
+"""
+-------------------------------------------------------------
+WARNING: This file is intentionally vulnerable.
+It exists ONLY for testing SonarQube / SonarCloud SAST tools.
+DO NOT use in any real application.
+-------------------------------------------------------------
+"""
 
-import sqlite3
 import os
+import sqlite3
 import subprocess
+import hashlib
+import random
 
 
 # -------------------------------------------------------------
-# Hardcoded secret  (S2068)
+# Hardcoded secret (S2068)
 # -------------------------------------------------------------
-API_KEY = "12345-very-insecure-api-key"   # SonarQube should flag this
+API_KEY = "12345-very-insecure-api-key"   # Sonar should flag this
 
 
 # -------------------------------------------------------------
-# SQL Injection Example (S3649)
+# SQL Injection (S3649)
 # -------------------------------------------------------------
-def get_user_score(db_path, username):
+def get_user_password(db_path, username):
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
 
-    # ❌ Vulnerable query: direct string concatenation
-    query = "SELECT score FROM users WHERE name = '" + username + "';"
-    print("Executing query:", query)
+    # ❌ Vulnerable: direct string concatenation
+    query = f"SELECT password FROM users WHERE username = '{username}';"
+    print("Executing SQL:", query)
 
-    cur.execute(query)  # SonarQube will flag this
+    cur.execute(query)  # Sonar should flag this
     result = cur.fetchone()
     conn.close()
     return result
 
 
 # -------------------------------------------------------------
-# Command Injection Example  (S4721)
+# Command Injection (S4721)
 # -------------------------------------------------------------
-def run_system_command(cmd):
-    # ❌ Vulnerable: user-controlled command execution
-    return subprocess.check_output(cmd, shell=True)
+def run_ping(host):
+    # ❌ Vulnerable: user-controlled shell command
+    cmd = "ping -c 1 " + host
+    return subprocess.check_output(cmd, shell=True)  # Sonar should flag
 
 
 # -------------------------------------------------------------
-# Insecure Eval Example (S2076 / S5334)
+# Insecure eval (S2076 / S5334)
 # -------------------------------------------------------------
-def calculate(expr):
-    # ❌ Vulnerable: executing arbitrary input
+def calc_user_expression(expr):
+    # ❌ Vulnerable: runs arbitrary Python
     return eval(expr)
 
 
 # -------------------------------------------------------------
-# Insecure file operations (S2083)
+# Path Traversal (S2083)
 # -------------------------------------------------------------
-def read_file(path):
-    # ❌ No path validation — SonarQube should flag
-    with open(path, "r") as f:
+def read_any_file(filename):
+    # ❌ No validation
+    with open(filename, "r") as f:
         return f.read()
 
 
 # -------------------------------------------------------------
-# MAIN (for demonstration only)
+# Weak hashing (S4790)
+# -------------------------------------------------------------
+def weak_hash(data):
+    # ❌ Weak MD5 hash
+    return hashlib.md5(data.encode()).hexdigest()
+
+
+# -------------------------------------------------------------
+# Predictable random (S2245)
+# -------------------------------------------------------------
+def insecure_token():
+    # ❌ Not cryptographically secure
+    return str(random.randint(100000, 999999))
+
+
+# -------------------------------------------------------------
+# MAIN (for demonstration)
 # -------------------------------------------------------------
 if __name__ == "__main__":
-    print("=== Vulnerable SonarQube Test Script ===")
+    print("=== Vulnerable Python File for Sonar Testing ===")
 
-    # Trigger SQLi vulnerability
-    print(get_user_score("example.db", "alice' OR '1'='1"))
-
-    # Trigger command injection
-    print(run_system_command("echo vulnerable"))
-
-    # Trigger eval vulnerability
-    print(calculate("2 + 3"))
-
-    # Trigger insecure file read
-    print(read_file("/etc/passwd"))
+    print(get_user_password("example.db", "admin' OR '1'='1"))
+    print(run_ping("127.0.0.1"))
+    print(calc_user_expression("2 + 5"))
+    print(read_any_file("/etc/passwd"))
+    print(weak_hash("password"))
+    print(insecure_token())
