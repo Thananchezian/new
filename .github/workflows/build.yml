@@ -25,10 +25,16 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # Run tests
+      # Show directory for debugging
+      - name: Show project structure
+        run: |
+          echo "Project structure:"
+          ls -R .
+
+      # Run tests (pytest auto-detects any test files)
       - name: Run Tests
         run: |
-          pytest test.py --disable-warnings --maxfail=1
+          pytest --disable-warnings --maxfail=1
 
       # Build Docker image
       - name: Build Docker Image
