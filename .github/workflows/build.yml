@@ -27,10 +27,9 @@ jobs:
           pip install pytest
 
       - name: Run tests
-      env:
-        PYTHONPATH: ./src
-      run: |
-        pytest --disable-warnings --maxfail=1
+        run: pytest --disable-warnings --maxfail=1
+        env:
+          PYTHONPATH: ./src
 
   docker-and-zap:
     runs-on: ubuntu-latest
@@ -41,12 +40,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Docker image
-        run: |
-          docker build -t python-app .
+        run: docker build -t python-app .
 
       - name: Run Docker container in background
-        run: |
-          docker run -d --name python-app -p 8000:8000 python-app
+        run: docker run -d --name python-app -p 8000:8000 python-app
 
       - name: Wait for app to start
         run: |
@@ -58,8 +55,9 @@ jobs:
         with:
           target: "http://localhost:8000"
           docker_name: "ghcr.io/zaproxy/zaproxy:stable"
-          cmd_options: "-t http://localhost:8000 -r report_html.html -J report_json.json"
+          cmd_options: "-r report_html.html -J report_json.json"
           allow_issue_writing: false
+          artifact_name: ""
 
       - name: Upload ZAP HTML Report
         uses: actions/upload-artifact@v4
@@ -72,3 +70,4 @@ jobs:
         run: |
           docker stop python-app
           docker rm python-app
+
