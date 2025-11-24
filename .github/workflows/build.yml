@@ -1,4 +1,3 @@
-# .github/workflows/build.yml
 name: Python App CI + OWASP ZAP
 
 on:
@@ -42,13 +41,11 @@ jobs:
       - name: Build Docker image
         run: docker build -t python-app .
 
-      - name: Run Docker container in background
+      - name: Run Docker container
         run: docker run -d --name python-app -p 8000:8000 python-app
 
       - name: Wait for app to start
-        run: |
-          echo "Waiting 15s for app to start..."
-          sleep 15
+        run: sleep 15
 
       - name: Run OWASP ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.4.0
@@ -57,18 +54,13 @@ jobs:
           docker_name: "ghcr.io/zaproxy/zaproxy:stable"
           cmd_options: "-r report_html.html -J report_json.json"
           allow_issue_writing: false
+          artifact_name: "zap_scan"
 
       - name: Upload ZAP HTML Report
         uses: actions/upload-artifact@v4
         with:
-          name: zap-html-report
+          name: zap-full-report
           path: report_html.html
-
-      - name: Upload ZAP JSON Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-json-report
-          path: report_json.json
 
       - name: Stop Docker container
         if: always()
