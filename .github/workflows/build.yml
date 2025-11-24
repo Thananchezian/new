@@ -1,4 +1,4 @@
-name: Build
+name: Build & Scan
 
 on:
   push:
@@ -9,33 +9,40 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarQube Cloud
+    name: SonarCloud + Unit Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.10]
+        python: [3.10.x]  # Use latest patch of Python 3.10
+
     steps:
-      # 1️⃣ Checkout code
-      - uses: actions/checkout@v2
+      # 1️⃣ Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Needed for Sonar analysis
 
       # 2️⃣ Setup Python
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 
-      # 3️⃣ Install tox and dependencies
-      - name: Install tox
-        run: pip install tox
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install tox pytest pytest-cov
 
-      # 4️⃣ Run tox tests
-      - name: Run tox
-        run: tox -e py
+      # 4️⃣ Run unit tests with coverage
+      - name: Run tests
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+          pytest --cov=./ --cov-report=xml -v
 
-      # 5️⃣ SonarCloud scan
-      - name: SonarQube Scan
+      # 5️⃣ SonarCloud Scan
+      - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
