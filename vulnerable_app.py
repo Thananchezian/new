@@ -44,8 +44,9 @@ def run_ping(host):
 # -------------------------------------------------------------
 # Insecure eval (S2076 / S5334)
 # -------------------------------------------------------------
-def calc_user_expression(expr):
-    # ❌ Vulnerable: runs arbitrary Python
+# vulnerable_app.py
+def calculate(expr):
+    """Simple (vulnerable) eval example for testing."""
     return eval(expr)
 
 
