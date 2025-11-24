@@ -1,12 +1,15 @@
-from fastapi import FastAPI
+# src/main.py
 
-app = FastAPI()
+def add(a, b):
+    return a + b
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+def subtract(a, b):
+    return a - b
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+def multiply(a, b):
+    return a * b
 
+def divide(a, b):
+    if b == 0:
+        raise ValueError("Cannot divide by zero")
+    return a / b
