@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checkout the repo
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         with:
           fetch-depth: 0  # Needed for accurate analysis
 
@@ -22,10 +22,3 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=thananchezian
-            -Dsonar.organization=Chezzian
-
-            -Dsonar.python.version=3
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
